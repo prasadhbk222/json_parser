@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pytest = "*"
+
+[dev-packages]
+yapf = "*"
+pytest = "*"
+
+[requires]
+python_version = "3.8"
+python_full_version = "3.8.9"
+
+[scripts]
+format_apply = "yapf -ir ."
+format = "yapf -rd ."
+test = "python -m pytest --disable-warnings"
