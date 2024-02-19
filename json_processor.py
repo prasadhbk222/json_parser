@@ -35,16 +35,21 @@ def check_first_and_last(json_string: str) -> bool:
 
 def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
 
+    key = None
+    value = None
     # parse key
-    key, end_of_key = parse_key(json_string, index)
+    key, end_of_key = parse_string(json_string, index + 1)
     if end_of_key >= len(json_string):
         raise JsonParsingError
     print(f'{key} {end_of_key}')
 
     #find colon
     colon_index = end_of_key + 1
-    while  colon_index < len(json_string) and json_string[colon_index] != ':':
-        colon_index += 1
+    while  colon_index < len(json_string) - 1 and json_string[colon_index] != ':':
+        if json_string[colon_index].isspace():
+            colon_index += 1
+        else:
+            raise JsonParsingError()
 
     
 
@@ -53,15 +58,38 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
     #parse value
     value_start_index = colon_index + 1
 
-    while value_start_index < len(json_string) and json_string[value_start_index].isspace():
+    while value_start_index < len(json_string) - 1 and json_string[value_start_index].isspace():
         value_start_index += 1
 
     print(value_start_index)
 
+    # value is a string
+    if json_string[value_start_index] == '"':
+        value, end_of_value = parse_string(json_string, value_start_index + 1)
+
+        print(f'{value} {end_of_value}')
+
+    # find comma
+    comma_index = end_of_value + 1
+
+    while comma_index < len(json_string) - 1 and json_string[comma_index] != ',':
+        if json_string[comma_index].isspace():
+            comma_index += 1
+        else:
+            raise JsonParsingError('line 79')
+
+    # Json completely parsed
+    if comma_index == len(json_string) - 1:
+        return key, value, -1
+
+    return key, value, comma_index
+
+        
 
 
 
-def parse_key(json_string:str, index:int) -> Tuple[str, int]:
+
+def parse_string(json_string:str, index:int) -> Tuple[str, int]:
 
     end_of_key = index
     while end_of_key < len(json_string) and json_string[end_of_key] != '"':

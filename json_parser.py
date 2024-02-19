@@ -27,26 +27,44 @@ def json_from_string(s: str) -> Dict[str, Any]:
         raise JsonParsingError('Bracket structure not valid')
     
 
-    
-    parsing_key = False
-    parsing_value = False
-
-    for i in range(1, input_length - 1):
+    i = 1
+    complete = False
+    while i < input_length - 1:
+        parsed_key = None
+        parsed_value = None
+        next_index = -1
         
-        while not parsing_key or not parsing_value:
+        while not parsed_key or not parsed_value:
             character = s[i]
-            # print(ord(c))
-            # import pdb
-            # pdb.set_trace()
+
             if character.isspace():
                 i += 1
             elif character != '"':
-                raise JsonParsingError()
+                raise JsonParsingError("line 43")
             elif character == '"':
                 parsing_key = True
-                parsed_key, parsed_value, index = parse_key_value(s, i + 1)
+                parsed_key, parsed_value, next_index = parse_key_value(s, i)
 
-            
+        
+       
+        result[parsed_key] = parsed_value
+        print(f'result {result}')
+
+        if next_index == -1:
+            complete = True
+            break
+
+        else:
+            i = next_index + 1
+
+
+
+
+        
+        
+
+    if not complete:
+        raise JsonParsingError("Incomplete JSON") 
 
     
     return result
@@ -66,7 +84,7 @@ def main():
             json_string = f.read()
             try:
                 json_dict = json_from_string(json_string)
-                return json_dict
+                print(f'final result: {json_dict}')
             except JsonParsingError as e:
                 print(e)
                 sys.exit(1)
