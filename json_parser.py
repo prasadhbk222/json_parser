@@ -34,28 +34,39 @@ def json_from_string(s: str) -> Dict[str, Any]:
         parsed_value = None
         next_index = -1
         
-        while not parsed_key or not parsed_value:
+        while  parsed_key is None:
             character = s[i]
 
             if character.isspace():
                 i += 1
             elif character != '"':
-                raise JsonParsingError("line 43")
+                raise JsonParsingError("JSON parsing error line 43")
             elif character == '"':
                 parsing_key = True
                 parsed_key, parsed_value, next_index = parse_key_value(s, i)
+                # print(parsed_key, parsed_value, next_index)
+                # print(f'next index {next_index}')
+                # if parsed_key == 'key2':
+                #     import pdb;
+                #     pdb.set_trace()
+                
+                if next_index == - 1:
+                    complete = True
+
+
 
         
        
         result[parsed_key] = parsed_value
         print(f'result {result}')
 
-        if next_index == -1:
-            complete = True
+        if complete:
             break
 
         else:
             i = next_index + 1
+            print(s[i:])
+
 
 
 

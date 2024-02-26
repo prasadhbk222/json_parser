@@ -40,8 +40,7 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
     # parse key
     key, end_of_key = parse_string(json_string, index + 1)
     if end_of_key >= len(json_string):
-        raise JsonParsingError
-    print(f'{key} {end_of_key}')
+        raise JsonParsingError()
 
     #find colon
     colon_index = end_of_key + 1
@@ -53,7 +52,6 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
 
     
 
-    print(colon_index)
 
     #parse value
     value_start_index = colon_index + 1
@@ -61,28 +59,47 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
     while value_start_index < len(json_string) - 1 and json_string[value_start_index].isspace():
         value_start_index += 1
 
-    print(value_start_index)
+    # print(value_start_index)
 
     # value is a string
     if json_string[value_start_index] == '"':
         value, end_of_value = parse_string(json_string, value_start_index + 1)
+        substring =  json_string[end_of_value:]
+        comma_index = substring.find(',')
+        if comma_index == -1:
+            # parsing complete
+            return key, value, -1
+        
+        return key, value, end_of_value + comma_index
 
-        print(f'{value} {end_of_value}')
 
-    # find comma
-    comma_index = end_of_value + 1
 
-    while comma_index < len(json_string) - 1 and json_string[comma_index] != ',':
-        if json_string[comma_index].isspace():
-            comma_index += 1
+    elif json_string[value_start_index] == 't' or json_string[value_start_index] == 'f' or json_string[value_start_index] == 'n':
+
+        substring = json_string[value_start_index:]
+        comma_index = substring.find(',')
+
+        if comma_index == -1:
+            end_index = len(json_string) - 1
         else:
-            raise JsonParsingError('line 79')
+            end_index = comma_index
+        
+        resultant = substring[: end_index].strip()
 
-    # Json completely parsed
-    if comma_index == len(json_string) - 1:
-        return key, value, -1
+        if resultant == 'true':
+            value = True
+        elif resultant == 'false':
+            value = False
+        elif resultant == 'null':
+            value = None
+        else:
+            raise JsonParsingError()
+        
+        if comma_index == -1:
+            # parsing complete
+            return key, value, -1
 
-    return key, value, comma_index
+        return key, value, value_start_index + comma_index
 
         
 
@@ -92,15 +109,21 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
 def parse_string(json_string:str, index:int) -> Tuple[str, int]:
 
     end_of_key = index
-    while end_of_key < len(json_string) and json_string[end_of_key] != '"':
-        end_of_key += 1
+    substring = json_string[index:]
+    string_end_index = substring.find('"')
+    if string_end_index == -1:
+        raise JsonParsingError()
+    value = substring[: string_end_index]
+    return value, index + len(value)
+    # while end_of_key < len(json_string) and json_string[end_of_key] != '"':
+    #     end_of_key += 1
 
-    if end_of_key >= len(json_string):
-        raise JsonParsingError('error in key parsing')
+    # if end_of_key >= len(json_string):
+    #     raise JsonParsingError('error in key parsing')
 
-    key = json_string[index : end_of_key]
+    # key = json_string[index : end_of_key]
 
-    return key, end_of_key
+    # return key, end_of_key
 
 
     
