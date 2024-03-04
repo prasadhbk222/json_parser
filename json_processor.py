@@ -1,5 +1,12 @@
 from typing import Tuple, Any
 
+def is_empty_json(json_string: str) -> bool:
+    # Strip leading and trailing whitespace and spaces
+    stripped_json = json_string.strip().replace(" ", "")
+    # Return True if the stripped string is '{}'
+    return stripped_json == '{}'
+
+
 
 def valid_brackets(json_string) -> bool:
     
@@ -80,7 +87,7 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
         comma_index = substring.find(',')
 
         if comma_index == -1:
-            end_index = len(json_string) - 1
+            end_index = len(substring) - 1
         else:
             end_index = comma_index
         
@@ -100,8 +107,48 @@ def parse_key_value(json_string: str, index: int) -> Tuple[str, Any, int]:
             return key, value, -1
 
         return key, value, value_start_index + comma_index
+    
+    elif json_string[value_start_index].isnumeric() or json_string[value_start_index] == '-':
+        substring = json_string[value_start_index:]
+        comma_index = substring.find(',')
+
+        if comma_index == -1:
+            end_index = len(substring) - 1
+        else:
+            end_index = comma_index
+        
+        resultant = substring[: end_index].strip()
+
+        numeric_value =  parse_int_or_float(resultant)
+
+        if comma_index == -1:
+            # parsing complete
+            return key, numeric_value, -1
+
+        return key, numeric_value, value_start_index + comma_index
+    
+    else:
+        raise JsonParsingError("Unexpected value")
+
+
+
+
 
         
+
+
+def parse_int_or_float(s: str):
+    try:
+        return int(s)
+    except ValueError:
+        try:
+            return float(s)
+        except ValueError:
+            raise JsonParsingError("Failed to parse as integer or float: {}".format(s))
+    
+    
+    
+
 
 
 

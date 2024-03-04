@@ -1,7 +1,7 @@
 import json
 import sys
 from typing import Dict, Any
-from json_processor import valid_brackets, check_first_and_last, parse_key_value, JsonParsingError
+from json_processor import valid_brackets, check_first_and_last, parse_key_value, is_empty_json, JsonParsingError
 
 def json_from_string(s: str) -> Dict[str, Any]:
 
@@ -17,6 +17,7 @@ def json_from_string(s: str) -> Dict[str, Any]:
     # minimum valid json length
     if input_length < 2:
         raise JsonParsingError('JSON string length less than 2')
+
     
     # first and last char should be equal and they should be { or [
     if not check_first_and_last(s):
@@ -25,6 +26,9 @@ def json_from_string(s: str) -> Dict[str, Any]:
 
     if not valid_brackets(s):
         raise JsonParsingError('Bracket structure not valid')
+    
+    if is_empty_json(s):
+        return result
     
 
     i = 1
@@ -53,10 +57,6 @@ def json_from_string(s: str) -> Dict[str, Any]:
                 if next_index == - 1:
                     complete = True
 
-
-
-        
-       
         result[parsed_key] = parsed_value
         print(f'result {result}')
 
@@ -67,12 +67,6 @@ def json_from_string(s: str) -> Dict[str, Any]:
             i = next_index + 1
             print(s[i:])
 
-
-
-
-
-        
-        
 
     if not complete:
         raise JsonParsingError("Incomplete JSON") 
@@ -97,6 +91,7 @@ def main():
                 json_dict = json_from_string(json_string)
                 print(f'final result: {json_dict}')
             except JsonParsingError as e:
+                print(f'JSON parsing failed')
                 print(e)
                 sys.exit(1)
         sys.exit(0)
